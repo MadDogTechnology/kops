@@ -40,6 +40,12 @@ NODEUP_HASH={{ NodeUpSourceHash }}
 
 {{ S3Env }}
 
+
+http_proxy=proxy.dc.res0.local:3128
+https_proxy=proxy.dc.res0.local:3128
+ftp_proxy=proxy.dc.res0.local:3128
+no_proxy=s3.amazonaws.com,dc.res0.local,kopsalpha0.dc.res0.net,localhost,169.254.169.254
+
 function ensure-install-dir() {
   INSTALL_DIR="/var/cache/kubernetes-install"
   # On ContainerOS, we install to /var/lib/toolbox install (because of noexec)
