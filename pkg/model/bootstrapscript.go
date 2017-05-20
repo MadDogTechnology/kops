@@ -24,6 +24,7 @@ import (
 	"k8s.io/kops/upup/pkg/fi"
 	"os"
 	"text/template"
+	"strconv"
 )
 
 // BootstrapScript creates the bootstrap script
@@ -33,7 +34,7 @@ type BootstrapScript struct {
 	NodeUpConfigBuilder func(ig *kops.InstanceGroup) (*nodeup.NodeUpConfig, error)
 }
 
-func (b *BootstrapScript) ResourceNodeUp(ig *kops.InstanceGroup) (*fi.ResourceHolder, error) {
+func (b *BootstrapScript) ResourceNodeUp(ig *kops.InstanceGroup, ps *kops.EgressProxiesSpec) (*fi.ResourceHolder, error) {
 	if ig.Spec.Role == kops.InstanceGroupRoleBastion {
 		// Bastions are just bare machines (currently), used as SSH jump-hosts
 		return nil, nil
@@ -70,6 +71,33 @@ func (b *BootstrapScript) ResourceNodeUp(ig *kops.InstanceGroup) (*fi.ResourceHo
 					os.Getenv("S3_SECRET_ACCESS_KEY"))
 			}
 			return ""
+		},
+
+		"ProxyEnv": func() string {
+			scriptSnippet := ""
+
+			if ps != nil && ps.HTTPProxy.Host != "" {
+				httpProxyUrl := "http://"
+				if ps.HTTPProxy.User != "" {
+
+					httpProxyUrl += ps.HTTPProxy.User
+					if ps.HTTPProxy.Password != "" {
+						httpProxyUrl += "@" + ps.HTTPProxy.Password
+					}
+				}
+				httpProxyUrl += ps.HTTPProxy.Host + ":" + strconv.Itoa(ps.HTTPProxy.Port)
+				scriptSnippet =
+					"export HTTP_PROXY=" + httpProxyUrl + "\n" +
+						"export NO_PROXY=" + ps.ProxyExcludes + "\n" +
+						"cat >> /etc/default/docker << __ETC_DEFAULT_DOCKER\n" +
+						"export HTTP_PROXY=${HTTP_PROXY}\n" +
+						"export NO_PROXY=${NO_PROXY}\n" +
+						"__ETC_DEFAULT_DOCKER\n" +
+						"echo DefaultEnvironment=http_proxy=${HTTP_PROXY} https_proxy=${HTTP_PROXY} ftp_proxy=${HTTP_PROXY} no_proxy=${NO_PROXY} >> /etc/systemd/system.conf\n" +
+						"systemctl daemon-reexec\n" +
+						"echo 'Acquire::http::Proxy \"${HTTP_PROXY}\";' > /etc/apt/apt.conf.d/30proxy\n\n"
+			}
+			return scriptSnippet
 		},
 	}
 

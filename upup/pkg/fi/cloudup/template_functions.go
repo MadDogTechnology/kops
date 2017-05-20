@@ -40,6 +40,7 @@ import (
 	"os"
 	"strings"
 	"text/template"
+	"strconv"
 )
 
 type TemplateFunctions struct {
@@ -98,6 +99,8 @@ func (tf *TemplateFunctions) AddTo(dest template.FuncMap) {
 	dest["EncodeGCELabel"] = gce.EncodeGCELabel
 
 	dest["DnsControllerImage"] = tf.DnsControllerImage
+
+	dest["ProxyEnv"] = tf.ProxyEnv
 }
 
 // SharedVPC is a simple helper function which makes the templates for a shared VPC clearer
@@ -181,3 +184,29 @@ func (tf *TemplateFunctions) DnsControllerImage() (string, error) {
 		return image, nil
 	}
 }
+
+func (tf *TemplateFunctions) ProxyEnv() (map[string]string, error) {
+	envs := map[string]string {}
+	proxies := tf.cluster.Spec.EgressProxies
+	if proxies == nil {
+		return envs, nil
+	}
+	httpProxy := proxies.HTTPProxy
+	if httpProxy.Host != "" {
+		url := "http://"
+		if httpProxy.User != "" {
+			url += httpProxy.User
+			if httpProxy.Password != "" {
+				url += ":" + httpProxy.Password
+			}
+			url += "@"
+		}
+		url += httpProxy.Host + ":" + strconv.Itoa(httpProxy.Port)
+		envs["HTTP_PROXY"] = url
+	}
+	if proxies.ProxyExcludes != "" {
+		envs["NO_PROXY"] = proxies.ProxyExcludes
+	}
+	return envs, nil
+}
+

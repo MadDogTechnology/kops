@@ -40,26 +40,7 @@ NODEUP_HASH={{ NodeUpSourceHash }}
 
 {{ S3Env }}
 
-PROXY=proxy.dc.res0.local:3128
-NOPROXY=localhost,127.0.0.1,100.64.0.1,.local,.internal,.res0.net,s3.amazonaws.com
-
-export http_proxy=http://${PROXY}
-export https_proxy=http://${PROXY}
-export ftp_proxy=http://${PROXY}
-export no_proxy=${NOPROXY}
-
-cat >> /etc/default/docker << __ETC_DEFAULT_DOCKER
-export http_proxy=http://${PROXY}
-export https_proxy=http://${PROXY}
-export ftp_proxy=http://${PROXY}
-export no_proxy=${NOPROXY}
-__ETC_DEFAULT_DOCKER
-
-echo DefaultEnvironment=http_proxy=${PROXY} https_proxy=${PROXY} ftp_proxy=${PROXY} no_proxy=${NOPROXY} >> /etc/systemd/system.conf
-systemctl daemon-reexec
-
-rm -f /etc/apt/apt.conf
-echo 'Acquire::http::Proxy "http://${PROXY}";' > /etc/apt/apt.conf.d/30proxy
+{{ ProxyEnv }}
 
 function ensure-install-dir() {
   INSTALL_DIR="/var/cache/kubernetes-install"

@@ -834,7 +834,7 @@ func (c *ApplyClusterCmd) validateKopsVersion() error {
 		fmt.Printf("More information: %s\n", buildPermalink("upgrade_kops", recommended.String()))
 		fmt.Printf("\n")
 		fmt.Printf(starline)
-		fmt.Printf("\n")
+									fmt.Printf("\n")
 	}
 
 	if required {

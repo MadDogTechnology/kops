@@ -35,7 +35,7 @@
 # NODEUP_BUCKET="s3-devel-bucket-name-store-nodeup" \
 # IMAGE="kope.io/k8s-1.4-debian-jessie-amd64-hvm-ebs-2016-10-21" \
 # ./dev-build.sh
-# 
+#
 # # TLDR;
 # 1. setup dns in route53
 # 2. create s3 buckets - state store and nodeup bucket
@@ -45,10 +45,10 @@
 # 6. use ssh-agent and ssh -A
 # 7. your pem will be the access token
 # 8. user is admin, and the default is debian
-# 
+#
 # # For more details see:
 #
-# https://github.com/kubernetes/kops/blob/master/docs/aws.md
+# https://git/hub.com/kubernetes/kops/blob/master/docs/aws.md
 #
 ###############################################################################
 
@@ -73,7 +73,7 @@ command -v aws >/dev/null 2>&1 || { echo >&2 "I require aws but it's not install
 # Cluster config
 NODE_COUNT=${NODE_COUNT:-3}
 NODE_ZONES=${NODE_ZONES:-"us-west-2a,us-west-2b,us-west-2c"}
-NODE_SIZE=${NODE_SIZE:-m4.xlarge}
+NODE_SIZE=${NODE_SIZE:-t2.xlarge}
 MASTER_ZONES=${MASTER_ZONES:-"us-west-2a,us-west-2b,us-west-2c"}
 MASTER_SIZE=${MASTER_SIZE:-m4.large}
 KOPS_CREATE=${KOPS_CREATE:-yes}
@@ -115,19 +115,21 @@ kops delete cluster \
 echo ==========
 echo "Creating cluster ${CLUSTER_NAME}"
 
-kops_command="NODEUP_URL=${KOPS_BASE_URL}linux/amd64/nodeup KOPS_BASE_URL=${KOPS_BASE_URL} kops create cluster --name $CLUSTER_NAME --state $KOPS_STATE_STORE --node-count $NODE_COUNT --zones $NODE_ZONES --master-zones $MASTER_ZONES --node-size $NODE_SIZE --master-size $MASTER_SIZE -v $VERBOSITY --image $IMAGE --channel alpha --topology $TOPOLOGY --networking $NETWORKING"
+kops_command="NODEUP_URL=${KOPS_BASE_URL}linux/amd64/nodeup KOPS_BASE_URL=${KOPS_BASE_URL} kops create cluster --name $CLUSTER_NAME --state $KOPS_STATE_STORE --node-count $NODE_COUNT --zones $NODE_ZONES --master-zones $MASTER_ZONES --node-size $NODE_SIZE --master-size $MASTER_SIZE -v $VERBOSITY --image $IMAGE --channel alpha --topology $TOPOLOGY --networking $NETWORKING --vpc $TARGET_VPC --dns-zone $DNS_ZONE"
 
-if [[ $TOPOLOGY == "private" ]]; then
-  kops_command+=" --bastion='true'"
-fi
+#if [[ $TOPOLOGY == "private" ]]; then
+  #kops_command+=" --bastion='true'"
+#fi
 
-if [ -n "${KOPS_FEATURE_FLAGS+x}" ]; then 
+if [ -n "${KOPS_FEATURE_FLAGS+x}" ]; then
   kops_command=KOPS_FEATURE_FLAGS="${KOPS_FEATURE_FLAGS}" $kops_command
 fi
 
-if [[ $KOPS_CREATE == "yes" ]]; then 
+if [[ $KOPS_CREATE == "yes" ]]; then
   kops_command="$kops_command --yes"
 fi
+
+
 
 eval $kops_command
 
