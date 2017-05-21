@@ -115,7 +115,7 @@ type ClusterSpec struct {
 	SSHAccess []string `json:"sshAccess,omitempty"`
 
 	// HTTPProxy defines connection information to support use of a private cluster behind an forward HTTP Proxy
-	EgressProxies *EgressProxiesSpec `json:"egressProxy,omitempty"`
+	EgressProxy *EgressProxySpec `json:"egressProxy,omitempty"`
 
 	// KubernetesAPIAccess is a list of the CIDRs that can access the Kubernetes API endpoint (master HTTPS)
 	KubernetesAPIAccess []string `json:"kubernetesApiAccess,omitempty"`
@@ -352,7 +352,7 @@ type ClusterSubnetSpec struct {
 	Type SubnetType `json:"type,omitempty"`
 }
 
-type EgressProxiesSpec struct {
+type EgressProxySpec struct {
 	HTTPProxy     HTTPProxySpec `json:"httpProxy,omitempty"`
 	//HTTPSProxy    *HTTPProxySpec `json:"httpsProxy,omitempty"`
 	//FTPProxy      *HTTPProxySpec `json:"ftpProxy,omitempty"`

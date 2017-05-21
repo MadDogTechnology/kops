@@ -34,7 +34,7 @@ type BootstrapScript struct {
 	NodeUpConfigBuilder func(ig *kops.InstanceGroup) (*nodeup.NodeUpConfig, error)
 }
 
-func (b *BootstrapScript) ResourceNodeUp(ig *kops.InstanceGroup, ps *kops.EgressProxiesSpec) (*fi.ResourceHolder, error) {
+func (b *BootstrapScript) ResourceNodeUp(ig *kops.InstanceGroup, ps *kops.EgressProxySpec) (*fi.ResourceHolder, error) {
 	if ig.Spec.Role == kops.InstanceGroupRoleBastion {
 		// Bastions are just bare machines (currently), used as SSH jump-hosts
 		return nil, nil
@@ -87,15 +87,23 @@ func (b *BootstrapScript) ResourceNodeUp(ig *kops.InstanceGroup, ps *kops.Egress
 				}
 				httpProxyUrl += ps.HTTPProxy.Host + ":" + strconv.Itoa(ps.HTTPProxy.Port)
 				scriptSnippet =
-					"export HTTP_PROXY=" + httpProxyUrl + "\n" +
-						"export NO_PROXY=" + ps.ProxyExcludes + "\n" +
-						"cat >> /etc/default/docker << __ETC_DEFAULT_DOCKER\n" +
-						"export HTTP_PROXY=${HTTP_PROXY}\n" +
-						"export NO_PROXY=${NO_PROXY}\n" +
-						"__ETC_DEFAULT_DOCKER\n" +
-						"echo DefaultEnvironment=http_proxy=${HTTP_PROXY} https_proxy=${HTTP_PROXY} ftp_proxy=${HTTP_PROXY} no_proxy=${NO_PROXY} >> /etc/systemd/system.conf\n" +
+					"export http_proxy=" + httpProxyUrl + "\n" +
+						"export https_proxy=${http_proxy}\n" +
+						"export ftp_proxy=${http_proxy}\n" +
+						"export no_proxy=" + ps.ProxyExcludes + "\n" +
+					    "rm /etc/apt/apt.conf\n" +  //                            FIXME TODO : remove me! !!! !! !!! !!! !
+						"echo \"export http_proxy=${http_proxy}\" >> /etc/default/docker\n" +
+						"echo \"export https_proxy=${http_proxy}\" >> /etc/default/docker\n" +
+						"echo \"export ftp_proxy=${http_proxy}\" >> /etc/default/docker\n" +
+						"echo \"export no_proxy=${no_proxy}\" >> /etc/default/docker\n" +
+						"echo \"export http_proxy=${http_proxy}\" >> /etc/environment\n" +
+						"echo \"export https_proxy=${http_proxy}\" >> /etc/environment\n" +
+						"echo \"export ftp_proxy=${http_proxy}\" >> /etc/environment\n" +
+						"echo \"export no_proxy=${no_proxy}\" >> /etc/environment\n" +
+						"echo DefaultEnvironment=\\\"http_proxy=${http_proxy}\\\" \\\"https_proxy=${http_proxy}\\\" \\\"ftp_proxy=${http_proxy}\\\" \\\"no_proxy=${no_proxy}\\\" >> /etc/systemd/system.conf\n" +
+						"systemctl daemon-reload\n" +
 						"systemctl daemon-reexec\n" +
-						"echo 'Acquire::http::Proxy \"${HTTP_PROXY}\";' > /etc/apt/apt.conf.d/30proxy\n\n"
+						"echo \"Acquire::http::Proxy \\\"${http_proxy}\\\";\" > /etc/apt/apt.conf.d/30proxy\n\n"
 			}
 			return scriptSnippet
 		},

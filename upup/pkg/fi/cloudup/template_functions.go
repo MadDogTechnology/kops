@@ -187,7 +187,7 @@ func (tf *TemplateFunctions) DnsControllerImage() (string, error) {
 
 func (tf *TemplateFunctions) ProxyEnv() (map[string]string, error) {
 	envs := map[string]string {}
-	proxies := tf.cluster.Spec.EgressProxies
+	proxies := tf.cluster.Spec.EgressProxy
 	if proxies == nil {
 		return envs, nil
 	}
@@ -202,10 +202,12 @@ func (tf *TemplateFunctions) ProxyEnv() (map[string]string, error) {
 			url += "@"
 		}
 		url += httpProxy.Host + ":" + strconv.Itoa(httpProxy.Port)
-		envs["HTTP_PROXY"] = url
+		envs["http_proxy"] = url
+		envs["https_proxy"] = url
+		envs["ftp_proxy"] = url
 	}
 	if proxies.ProxyExcludes != "" {
-		envs["NO_PROXY"] = proxies.ProxyExcludes
+		envs["no_proxy"] = proxies.ProxyExcludes
 	}
 	return envs, nil
 }
