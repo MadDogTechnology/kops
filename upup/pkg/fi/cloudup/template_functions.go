@@ -30,16 +30,17 @@ package cloudup
 import (
 	"encoding/base64"
 	"fmt"
+	"os"
+	"strconv"
+	"strings"
+	"text/template"
+
 	"k8s.io/apimachinery/pkg/util/sets"
 	"k8s.io/kops/pkg/apis/kops"
 	"k8s.io/kops/pkg/dns"
 	"k8s.io/kops/pkg/model"
 	"k8s.io/kops/pkg/model/components"
 	"k8s.io/kops/upup/pkg/fi/cloudup/gce"
-	"os"
-	"strconv"
-	"strings"
-	"text/template"
 )
 
 type TemplateFunctions struct {
