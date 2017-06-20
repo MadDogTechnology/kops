@@ -23,8 +23,8 @@ import (
 	"k8s.io/kops/pkg/model/resources"
 	"k8s.io/kops/upup/pkg/fi"
 	"os"
-	"text/template"
 	"strconv"
+	"text/template"
 )
 
 // BootstrapScript creates the bootstrap script
@@ -91,7 +91,6 @@ func (b *BootstrapScript) ResourceNodeUp(ig *kops.InstanceGroup, ps *kops.Egress
 						"export https_proxy=${http_proxy}\n" +
 						"export ftp_proxy=${http_proxy}\n" +
 						"export no_proxy=" + ps.ProxyExcludes + "\n" +
-					    "rm /etc/apt/apt.conf\n" +  //                            FIXME TODO : remove me! !!! !! !!! !!! !
 						"echo \"export http_proxy=${http_proxy}\" >> /etc/default/docker\n" +
 						"echo \"export https_proxy=${http_proxy}\" >> /etc/default/docker\n" +
 						"echo \"export ftp_proxy=${http_proxy}\" >> /etc/default/docker\n" +

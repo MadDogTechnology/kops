@@ -354,8 +354,6 @@ type ClusterSubnetSpec struct {
 
 type EgressProxySpec struct {
 	HTTPProxy     HTTPProxySpec `json:"httpProxy,omitempty"`
-	//HTTPSProxy    *HTTPProxySpec `json:"httpsProxy,omitempty"`
-	//FTPProxy      *HTTPProxySpec `json:"ftpProxy,omitempty"`
 	ProxyExcludes string        `json:"excludes,omitempty"`
 }
 
