@@ -81,6 +81,8 @@ func PerformAssignments(c *kops.Cluster) error {
 		return err
 	}
 
+	c.Spec.EgressProxy = assignProxy(c)
+
 	return ensureKubernetesVersion(c)
 }
 
@@ -128,4 +130,49 @@ func FindLatestKubernetesVersion() (string, error) {
 	}
 	latestVersion := strings.TrimSpace(string(b))
 	return latestVersion, nil
+}
+
+func assignProxy(cluster *kops.Cluster) (*kops.EgressProxySpec) {
+
+	egressProxy := cluster.Spec.EgressProxy
+	// TODO add http to the url, setup default port
+	// Add default no_proxy values if we are using a http proxy
+	if egressProxy != nil {
+
+		var egressSlice []string
+		if egressProxy.ProxyExcludes != "" {
+			egressSlice = strings.Split(egressProxy.ProxyExcludes, ",")
+		}
+
+		// run through the basic list
+		for _, exclude := range []string {
+			"127.0.0.1",
+			"localhost",
+			// TODO test for AWS
+			"169.254.169.254",
+			cluster.Spec.ClusterDNSDomain,
+			cluster.Spec.MasterPublicName,
+			cluster.ObjectMeta.Name,
+			// TODO we should probably check the Non Masq CIDR
+			"100.64.0.1",
+
+		} {
+			if exclude == "" {
+				continue
+			}
+			if !strings.Contains(egressProxy.ProxyExcludes, exclude) {
+				egressSlice = append(egressSlice, exclude)
+			}
+		}
+
+
+		egressProxy.ProxyExcludes = strings.Join(egressSlice,",")
+
+		glog.V(4).Infof("Completed setting up Proxy Excludes: %q", egressProxy.ProxyExcludes)
+	} else {
+		glog.V(4).Info("Not setting up Proxy Excludes")
+	}
+
+	return egressProxy
+
 }
