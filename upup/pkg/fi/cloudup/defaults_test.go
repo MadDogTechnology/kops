@@ -17,8 +17,8 @@ limitations under the License.
 package cloudup
 
 import (
-	"testing"
 	"k8s.io/kops/pkg/apis/kops"
+	"testing"
 )
 
 func TestPopulateClusterSpec_Proxy(t *testing.T) {
@@ -32,10 +32,14 @@ func TestPopulateClusterSpec_Proxy(t *testing.T) {
 		},
 	}
 
-	c.Spec.EgressProxy = assignProxy(c)
 	c.Spec.NonMasqueradeCIDR = "100.64.0.1/10"
+	var err error
+	c.Spec.EgressProxy, err = assignProxy(c)
+	if err != nil {
+		t.Fatalf("unable to assign proxy, %v", err)
+	}
 
-	if c.Spec.EgressProxy.ProxyExcludes != "google.com,127.0.0.1,localhost,169.254.169.254,testcluster.test.com,100.64.0.1" {
+	if c.Spec.EgressProxy.ProxyExcludes != "google.com,127.0.0.1,localhost,testcluster.test.com,100.64.0.2,100.64.0.1/10,169.254.169.254" {
 		t.Fatalf("Incorrect proxy excludes set: %v", c.Spec.EgressProxy.ProxyExcludes)
 	}
 
@@ -46,9 +50,27 @@ func TestPopulateClusterSpec_Proxy(t *testing.T) {
 		},
 	}
 
-	c.Spec.EgressProxy = assignProxy(c)
+	c.Spec.NonMasqueradeCIDR = "100.64.0.0/10"
+	c.Spec.EgressProxy.ProxyExcludes = ""
 
-	if c.Spec.EgressProxy.ProxyExcludes != "127.0.0.1,localhost,169.254.169.254,testcluster.test.com,100.64.0.1" {
+	c.Spec.EgressProxy, err = assignProxy(c)
+	if err != nil {
+		t.Fatalf("unable to assign proxy, %v", err)
+	}
+
+	if c.Spec.EgressProxy.ProxyExcludes != "127.0.0.1,localhost,testcluster.test.com,100.64.0.1,100.64.0.0/10,169.254.169.254" {
+		t.Fatalf("Incorrect proxy excludes set: %v", c.Spec.EgressProxy.ProxyExcludes)
+	}
+
+	c.Spec.NonMasqueradeCIDR = "172.16.0.5/12"
+	c.Spec.CloudProvider = "gce"
+	c.Spec.EgressProxy.ProxyExcludes = ""
+	c.Spec.EgressProxy, err = assignProxy(c)
+	if err != nil {
+		t.Fatalf("unable to assign proxy, %v", err)
+	}
+
+	if c.Spec.EgressProxy.ProxyExcludes != "127.0.0.1,localhost,testcluster.test.com,172.16.0.6,172.16.0.5/12" {
 		t.Fatalf("Incorrect proxy excludes set: %v", c.Spec.EgressProxy.ProxyExcludes)
 	}
 

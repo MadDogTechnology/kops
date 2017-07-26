@@ -114,7 +114,6 @@ func (b *BootstrapScript) createProxyEnv(ps *kops.EgressProxySpec) string {
 			httpProxyUrl += ps.HTTPProxy.Host
 		}
 
-
 		// Set base env variables
 		buffer.WriteString("export http_proxy=" + httpProxyUrl + "\n")
 		buffer.WriteString("export https_proxy=${http_proxy}\n")

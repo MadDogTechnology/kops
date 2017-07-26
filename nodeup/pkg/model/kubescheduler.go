@@ -18,6 +18,7 @@ package model
 
 import (
 	"fmt"
+
 	"k8s.io/apimachinery/pkg/api/resource"
 	metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
 	"k8s.io/apimachinery/pkg/util/intstr"
@@ -140,6 +141,7 @@ func (b *KubeSchedulerBuilder) buildPod() (*v1.Pod, error) {
 			InitialDelaySeconds: 15,
 			TimeoutSeconds:      15,
 		},
+		Env: getProxyEnvVars(b.Cluster.Spec.EgressProxy),
 	}
 
 	addHostPathMapping(pod, container, "varlibkubescheduler", "/var/lib/kube-scheduler")
