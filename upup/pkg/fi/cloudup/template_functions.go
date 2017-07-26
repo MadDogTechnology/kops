@@ -30,16 +30,17 @@ package cloudup
 import (
 	"encoding/base64"
 	"fmt"
+	"os"
+	"strconv"
+	"strings"
+	"text/template"
+
 	"k8s.io/apimachinery/pkg/util/sets"
 	"k8s.io/kops/pkg/apis/kops"
 	"k8s.io/kops/pkg/dns"
 	"k8s.io/kops/pkg/model"
 	"k8s.io/kops/pkg/model/components"
 	"k8s.io/kops/upup/pkg/fi/cloudup/gce"
-	"os"
-	"strconv"
-	"strings"
-	"text/template"
 )
 
 type TemplateFunctions struct {
@@ -208,21 +209,14 @@ func (tf *TemplateFunctions) ProxyEnv() (map[string]string, error) {
 	}
 	httpProxy := proxies.HTTPProxy
 	if httpProxy.Host != "" {
-		url := "http://"
-		if httpProxy.User != "" {
-			url += httpProxy.User
-			if httpProxy.Password != "" {
-				url += ":" + httpProxy.Password
-			}
-			url += "@"
-		}
-		url += httpProxy.Host + ":" + strconv.Itoa(httpProxy.Port)
+		url := "http://" + httpProxy.Host + ":" + strconv.Itoa(httpProxy.Port)
 		envs["http_proxy"] = url
 		envs["https_proxy"] = url
 		envs["ftp_proxy"] = url
 	}
 	if proxies.ProxyExcludes != "" {
 		envs["no_proxy"] = proxies.ProxyExcludes
+		envs["NO_PROXY"] = proxies.ProxyExcludes
 	}
 	return envs, nil
 }

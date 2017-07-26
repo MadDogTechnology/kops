@@ -166,6 +166,7 @@ func (b *KubeletBuilder) buildSystemdService() *nodetasks.Service {
 	if b.Distribution == distros.DistributionCoreOS {
 		// We add /opt/kubernetes/bin for our utilities (socat)
 		manifest.Set("Service", "Environment", "PATH=/usr/local/sbin:/usr/local/bin:/usr/sbin:/usr/bin:/sbin:/bin:/opt/kubernetes/bin")
+
 	}
 
 	manifest.Set("Service", "EnvironmentFile", "/etc/sysconfig/kubelet")
