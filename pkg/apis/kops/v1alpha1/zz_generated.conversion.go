@@ -1211,8 +1211,6 @@ func Convert_kops_FlannelNetworkingSpec_To_v1alpha1_FlannelNetworkingSpec(in *ko
 func autoConvert_v1alpha1_HTTPProxy_To_kops_HTTPProxy(in *HTTPProxy, out *kops.HTTPProxy, s conversion.Scope) error {
 	out.Host = in.Host
 	out.Port = in.Port
-	out.User = in.User
-	out.Password = in.Password
 	return nil
 }
 
@@ -1224,8 +1222,6 @@ func Convert_v1alpha1_HTTPProxy_To_kops_HTTPProxy(in *HTTPProxy, out *kops.HTTPP
 func autoConvert_kops_HTTPProxy_To_v1alpha1_HTTPProxy(in *kops.HTTPProxy, out *HTTPProxy, s conversion.Scope) error {
 	out.Host = in.Host
 	out.Port = in.Port
-	out.User = in.User
-	out.Password = in.Password
 	return nil
 }
 

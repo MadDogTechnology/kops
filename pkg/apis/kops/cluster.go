@@ -384,10 +384,11 @@ type EgressProxySpec struct {
 }
 
 type HTTPProxy struct {
-	Host     string `json:"host,omitempty"`
-	Port     int    `json:"port,omitempty"`
-	User     string `json:"user,omitempty"`
-	Password string `json:"password,omitempty"`
+	Host string `json:"host,omitempty"`
+	Port int    `json:"port,omitempty"`
+	// TODO #3070
+	// User     string `json:"user,omitempty"`
+	// Password string `json:"password,omitempty"`
 }
 
 // FillDefaults populates default values.
