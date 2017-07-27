@@ -26,7 +26,7 @@ import (
 func Test_ProxyFunc(t *testing.T) {
 	b := &BootstrapScript{}
 	ps := &kops.EgressProxySpec{
-		HTTPProxy: kops.HTTPProxySpec{
+		HTTPProxy: kops.HTTPProxy{
 			Host: "example.com",
 			Port: 80,
 		},

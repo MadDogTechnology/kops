@@ -26,7 +26,7 @@ func TestPopulateClusterSpec_Proxy(t *testing.T) {
 
 	c.Spec.EgressProxy = &kops.EgressProxySpec{
 		ProxyExcludes: "google.com",
-		HTTPProxy: kops.HTTPProxySpec{
+		HTTPProxy: kops.HTTPProxy{
 			Host: "52.205.179.249",
 			Port: 3128,
 		},
@@ -44,7 +44,7 @@ func TestPopulateClusterSpec_Proxy(t *testing.T) {
 	}
 
 	c.Spec.EgressProxy = &kops.EgressProxySpec{
-		HTTPProxy: kops.HTTPProxySpec{
+		HTTPProxy: kops.HTTPProxy{
 			Host: "52.205.179.249",
 			Port: 3128,
 		},

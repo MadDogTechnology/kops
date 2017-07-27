@@ -372,11 +372,11 @@ type ClusterZoneSpec struct {
 }
 
 type EgressProxySpec struct {
-	HTTPProxy     HTTPProxySpec `json:"httpProxy,omitempty"`
-	ProxyExcludes string        `json:"excludes,omitempty"`
+	HTTPProxy     HTTPProxy `json:"httpProxy,omitempty"`
+	ProxyExcludes string    `json:"excludes,omitempty"`
 }
 
-type HTTPProxySpec struct {
+type HTTPProxy struct {
 	Host     string `json:"host,omitempty"`
 	Port     int    `json:"port,omitempty"`
 	User     string `json:"user,omitempty"`
