@@ -212,7 +212,6 @@ func (tf *TemplateFunctions) ProxyEnv() (map[string]string, error) {
 		url := "http://" + httpProxy.Host + ":" + strconv.Itoa(httpProxy.Port)
 		envs["http_proxy"] = url
 		envs["https_proxy"] = url
-		envs["ftp_proxy"] = url
 	}
 	if proxies.ProxyExcludes != "" {
 		envs["no_proxy"] = proxies.ProxyExcludes

@@ -117,7 +117,6 @@ func (b *BootstrapScript) createProxyEnv(ps *kops.EgressProxySpec) string {
 		// Set base env variables
 		buffer.WriteString("export http_proxy=" + httpProxyUrl + "\n")
 		buffer.WriteString("export https_proxy=${http_proxy}\n")
-		buffer.WriteString("export ftp_proxy=${http_proxy}\n")
 		// adding local ip address
 		buffer.WriteString("export no_proxy=" + ps.ProxyExcludes + ",$(ip route get 1 | awk '{print $NF;exit}')\n")
 		buffer.WriteString("export NO_PROXY=${no_proxy}\n")
@@ -125,16 +124,13 @@ func (b *BootstrapScript) createProxyEnv(ps *kops.EgressProxySpec) string {
 		// Set env variables for docker
 		buffer.WriteString("echo \"export http_proxy=${http_proxy}\" >> /etc/default/docker\n")
 		buffer.WriteString("echo \"export https_proxy=${http_proxy}\" >> /etc/default/docker\n")
-		buffer.WriteString("echo \"export ftp_proxy=${http_proxy}\" >> /etc/default/docker\n")
 
 		// Set env variables for base environment
 		buffer.WriteString("echo \"export http_proxy=${http_proxy}\" >> /etc/environment\n")
 		buffer.WriteString("echo \"export https_proxy=${http_proxy}\" >> /etc/environment\n")
-		buffer.WriteString("echo \"export ftp_proxy=${http_proxy}\" >> /etc/environment\n")
 
 		// Set env variables to systemd
 		buffer.WriteString("echo DefaultEnvironment=\\\"http_proxy=${http_proxy}\\\" \\\"https_proxy=${http_proxy}\\\"")
-		buffer.WriteString(" \\\"ftp_proxy=${http_proxy}\\\" \\\"NO_PROXY=${no_proxy}\\\" \\\"no_proxy=${no_proxy}\\\"")
 		buffer.WriteString(" >> /etc/systemd/system.conf\n")
 		buffer.WriteString("echo \"export no_proxy=${no_proxy}\" >> /etc/environment\n")
 		buffer.WriteString("echo \"export NO_PROXY=${no_proxy}\" >> /etc/environment\n")
@@ -158,4 +154,5 @@ func (b *BootstrapScript) createProxyEnv(ps *kops.EgressProxySpec) string {
 		buffer.WriteString("fi\n")
 	}
 	return buffer.String()
+	8
 }
