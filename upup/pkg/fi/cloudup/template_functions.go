@@ -201,15 +201,21 @@ func (tf *TemplateFunctions) ExternalDnsArgv() ([]string, error) {
 	return argv, nil
 }
 
-func (tf *TemplateFunctions) ProxyEnv() (map[string]string, error) {
+func (tf *TemplateFunctions) ProxyEnv() map[string]string {
 	envs := map[string]string{}
 	proxies := tf.cluster.Spec.EgressProxy
 	if proxies == nil {
-		return envs, nil
+		return envs
 	}
 	httpProxy := proxies.HTTPProxy
 	if httpProxy.Host != "" {
-		url := "http://" + httpProxy.Host + ":" + strconv.Itoa(httpProxy.Port)
+		var portSuffix string
+		if httpProxy.Port != 0 {
+			portSuffix = ":" + strconv.Itoa(httpProxy.Port)
+		} else {
+			portSuffix = ""
+		}
+		url := "http://" + httpProxy.Host + portSuffix
 		envs["http_proxy"] = url
 		envs["https_proxy"] = url
 	}
@@ -217,5 +223,5 @@ func (tf *TemplateFunctions) ProxyEnv() (map[string]string, error) {
 		envs["no_proxy"] = proxies.ProxyExcludes
 		envs["NO_PROXY"] = proxies.ProxyExcludes
 	}
-	return envs, nil
+	return envs
 }

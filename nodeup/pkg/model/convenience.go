@@ -17,7 +17,7 @@ limitations under the License.
 package model
 
 import (
-	"os"
+	"strconv"
 
 	"github.com/golang/glog"
 	"k8s.io/client-go/pkg/api/v1"
@@ -35,25 +35,30 @@ func i64(v int64) *int64 {
 	return fi.Int64(v)
 }
 
-func getProxyEnvVars(proxy *kops.EgressProxySpec) []v1.EnvVar {
-
-	if proxy == nil {
-		return nil
+func getProxyEnvVars(proxies *kops.EgressProxySpec) []v1.EnvVar {
+	glog.Info("in getProxyEnvVars")
+	if proxies == nil {
+		glog.Info("proxies is == nil, returning empty list")
+		return []v1.EnvVar{}
 	}
 
-	httpProxy := os.Getenv("http_proxy")
-	noProxy := os.Getenv("NO_PROXY")
-
-	if httpProxy == "" || noProxy == "" {
-		glog.Warning("http_proxy or NO_PROXY environment variable is empty")
-		glog.Warning("http_proxy=%q", httpProxy)
-		glog.Warning("NO_PROXY=%q", noProxy)
+	if proxies.HTTPProxy.Host == "" {
+		glog.Warning("EgressProxy set but no proxy host provided")
 	}
+
+	var httpProxyURL string
+	if proxies.HTTPProxy.Port == 0 {
+		httpProxyURL = "http://" + proxies.HTTPProxy.Host
+	} else {
+		httpProxyURL = "http://" + proxies.HTTPProxy.Host + ":" + strconv.Itoa(proxies.HTTPProxy.Port)
+	}
+
+	noProxy := proxies.ProxyExcludes
+
 	return []v1.EnvVar{
-		{Name: "http_proxy", Value: httpProxy},
-		{Name: "https_proxy", Value: httpProxy},
+		{Name: "http_proxy", Value: httpProxyURL},
+		{Name: "https_proxy", Value: httpProxyURL},
 		{Name: "NO_PROXY", Value: noProxy},
 		{Name: "no_proxy", Value: noProxy},
 	}
-
 }

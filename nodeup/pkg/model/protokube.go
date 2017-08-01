@@ -282,21 +282,19 @@ func (t *ProtokubeBuilder) ProtokubeEnvironmentVariables() string {
 		buffer.WriteString(" ")
 	}
 
-	if t.Cluster.Spec.EgressProxy != nil {
-		proxy := os.Getenv("http_proxy")
-		noProxy := os.Getenv("no_proxy")
-		buffer.WriteString(" -e http_proxy=")
-		buffer.WriteString(proxy)
-		buffer.WriteString(" ")
-		buffer.WriteString(" -e https_proxy=")
-		buffer.WriteString(proxy)
-		buffer.WriteString(" ")
-		buffer.WriteString(" -e no_proxy=")
-		buffer.WriteString(noProxy)
-		buffer.WriteString(" ")
-		buffer.WriteString(" -e NO_PROXY=")
-		buffer.WriteString(noProxy)
+	t.writeProxyEnvVars(&buffer)
+
+	return buffer.String()
+}
+
+func (t *ProtokubeBuilder) writeProxyEnvVars(buffer *bytes.Buffer) {
+	glog.Info("in writeProxyEnvVars")
+	for _, envVar := range getProxyEnvVars(t.Cluster.Spec.EgressProxy) {
+		glog.Info("envVar.Name %s envVar.Value %s", envVar.Name, envVar.Value)
+		buffer.WriteString(" -e ")
+		buffer.WriteString(envVar.Name)
+		buffer.WriteString("=")
+		buffer.WriteString(envVar.Value)
 		buffer.WriteString(" ")
 	}
-	return buffer.String()
 }

@@ -182,6 +182,14 @@ func assignProxy(cluster *kops.Cluster) (*kops.EgressProxySpec, error) {
 			egressSlice = append(egressSlice, awsNoProxy)
 		}
 
+		// the kube-apiserver will need to talk to kubelets on their node IP addresses port 10250
+		// for pod logs to be available via the api
+		if cluster.Spec.NetworkCIDR != "" {
+			egressSlice = append(egressSlice, cluster.Spec.NetworkCIDR)
+		} else {
+			glog.Warningf("No NetworkCIDR defined, not adding to no_proxy")
+		}
+
 		egressProxy.ProxyExcludes = strings.Join(egressSlice, ",")
 		glog.V(4).Infof("Completed setting up Proxy Excludes: %q", egressProxy.ProxyExcludes)
 	} else {
